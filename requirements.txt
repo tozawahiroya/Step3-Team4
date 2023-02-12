@@ -1,5 +1,4 @@
 google-cloud-speech
-google-cloud-storage
 os
 io
 pandas
