@@ -82,7 +82,7 @@ st.warning('質問：　' + question)
 
 contents = audio_recorder(
     energy_threshold = (1000000000,0.0000000002), 
-    pause_threshold=0.5, 
+    pause_threshold=0.2, 
     sample_rate = 48_000,
     text="アイコンをClickして面接開始　→　",
     icon_name="user",
