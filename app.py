@@ -97,7 +97,7 @@ destination_blob_name = 'streamlit-mono1.wav'
 upload_blob_from_memory(bucket_name, contents, destination_blob_name)
 st.write('分析中です...')
 transcript = transcript(bucket_name)
-text = '/n'.join(transcript)
+text = '\n'.join(transcript)
 
 status = st.write('分析が完了しました！')
 
