@@ -139,7 +139,7 @@ if contents == None:
     st.info(contents)
     st.stop()
 
-st.info('【録音完了！　音声分析中...】  \n　↓分析中は録音データをチェック！')
+st.('【録音完了！　音声分析中...】  \n　↓分析中は録音データをチェック！')
 st.audio(contents)
 
 bucket_name = 'tech0-speachtotext'
