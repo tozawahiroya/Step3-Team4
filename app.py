@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 import audioop
 import time
+import datetime
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import speech
 
 
@@ -24,26 +27,10 @@ def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
     contents = audioop.tomono(contents, 1, 0, 1)
     blob.upload_from_string(contents)
 
-
-    print(
-        f"{destination_blob_name} with contents {contents} uploaded to {bucket_name}."
-    )
     return contents
 
-def gcs_url(bucket_name): 
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket_name)
-    blobs = bucket.list_blobs()
-    id_list = []
-    for blob in blobs:
-        id_list.append(blob.id)
-    url_id = id_list[0].split('.wav')[0]
-    gcs_uri="gs://"+url_id+".wav"
-    return gcs_uri
 
-
-def transcript(bucket_name):
-    gcs_uri = gcs_url(bucket_name)
+def transcript(gcs_uri):
     audio = speech.RecognitionAudio(uri=gcs_uri)
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
@@ -100,6 +87,22 @@ def countdown_answer():
             text_timeout = "時間切れです。リロードして再挑戦してください"
             return text_timeout
 
+def google_spread(list):
+    scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+    json = 'tech0-step3-te-bd23bed77076.json'
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(json, scope)
+    gc = gspread.authorize(credentials)
+
+    SPREADSHEET_KEY = '1eXLTugi8tzy_L_keNkeu-Slyl6YbHlRJ7-WDXdNP7n4'
+    worksheet = gc.open_by_key(SPREADSHEET_KEY).sheet1
+
+    items = list
+
+    worksheet.append_row(items)
+
+
+
 
 st.title('ケース面接Quest')
 st.write("ケース面接の練習ができるアプリです。")
@@ -139,14 +142,17 @@ if contents == None:
     st.info(contents)
     st.stop()
 
-st.success('■　録音完了！　音声分析中...  \n　↓分析中は録音データをチェック！')
+st.info('【録音完了！　音声分析中...】  \n　↓分析中は録音データをチェック！')
 st.audio(contents)
 
+
+id = str(datetime.datetime.now()).replace('.','-').replace(' ','-').replace(':','-')
 bucket_name = 'tech0-speachtotext'
-destination_blob_name = 'streamlit-mono1.wav'
+destination_blob_name = 'test_' + id + '.wav'
+gcs_uri="gs://" + bucket_name + '/' +destination_blob_name
 
 upload_blob_from_memory(bucket_name, contents, destination_blob_name)
-transcript = transcript(bucket_name)
+transcript = transcript(gcs_uri)
 text = '。\n'.join(transcript)
 
 status = st.info('分析が完了しました！')
@@ -154,25 +160,35 @@ status = st.info('分析が完了しました！')
 with st.form("form1"):
     name = st.text_input("名前/Name")
     email = st.text_input("メールアドレス/Mail address")
-    massage = st.text_area("回答内容（修正可能）",text)
+    answer = st.text_area("回答内容（修正可能）",text)
+    fb_request = st.radio(
+        "練習 or 本提出の確認",
+        ("練習用です（Feedbackを希望しない）", "本提出用です（Feedbackを希望する）")
+        )
+    if fb_request == "練習用です（Feedbackを希望しない）":
+        fb_flag = "0"
+    else:
+        fb_flag = "1"
 
     submit = st.form_submit_button("Submit")
 
+
+
 if submit:
-    st.info('回答が提出されました。後ほどご入力頂いたメール宛にFeedbackを送付します')
+    if name == '':
+        st.error('名前/Nameを入力してください')
+    
+    if email == '':
+        st.error('メールアドレス/Mail addressを入力してください')
+
+    if answer == '':
+        st.error('回答内容を入力してください')
+
+    if (name is not '' and email is not '' and answer is not ''):
+        st.info('回答が提出されました。後ほどご入力頂いたメール宛にFeedbackを送付します')
+        list = [id, name, email, question, answer, gcs_uri, fb_flag]
+        google_spread(list)
 
 st.stop()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
