@@ -35,6 +35,8 @@ def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
 
 
 def transcript(gcs_uri):
+    #Speech to textに音声データを受け渡して文字起こしデータを受け取る関数
+    
     audio = speech.RecognitionAudio(uri=gcs_uri)
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
@@ -44,7 +46,7 @@ def transcript(gcs_uri):
 
     operation = speech.SpeechClient().long_running_recognize(config=config, audio=audio)
     response = operation.result(timeout=90)
-
+   
     transcript = []
     for result in response.results:
         transcript.append(result.alternatives[0].transcript)
