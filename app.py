@@ -18,13 +18,17 @@ import streamlit as st
 from audio_recorder_streamlit import audio_recorder
 
 def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
-    """Uploads a file to the bucket."""
-
+    #Google cloud storageへ音声データ（Binaly）をUploadする関数
+    
+    #Google Cloud storageの　バケット（like フォルダ）と作成するオブジェクト（like ファイル）を指定する。
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
+    #録音データをステレオからモノラルに変換
     contents = audioop.tomono(contents, 1, 0, 1)
+    
+    #指定したバケット、オブジェクトにUpload
     blob.upload_from_string(contents)
 
     return contents
