@@ -90,7 +90,7 @@ def countdown_answer():
 
         time.sleep(1)
         if secs == 1:
-            text_timeout = "時間切れです。リロードして再挑戦してください"
+            text_timeout = "時間切れです。リロードして再挑戦してください  \n※注意※timeout前に録音を完了していた場合はそのまま少々お待ちください"
             return text_timeout
 
 def google_spread(list):
@@ -144,8 +144,8 @@ contents = recorder()
 
 if contents == None:
     st.info('①　アイコンボタンを押して回答録音　(アイコンが赤色で録音中)。  \n②　もう一度押して回答終了　(再度アイコンが黒色になれば完了)')
-    contents = countdown_answer()
-    st.info(contents)
+    timeout_msg = countdown_answer()
+    st.info(timeout_msg)
     st.stop()
 
 st.info('【録音完了！　音声分析中...】  \n　↓分析中は録音データをチェック！')
