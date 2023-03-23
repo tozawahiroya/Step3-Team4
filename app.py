@@ -90,7 +90,7 @@ def countdown_answer():
 
         time.sleep(1)
         if secs == 1:
-            text_timeout = "時間切れです。リロードして再挑戦してください  \n※注意※timeout前に録音を完了していた場合はそのまま少々お待ちください"
+            text_timeout = "時間切れです。リロードして再挑戦してください  \n※注意※　timeout前に録音を完了していた場合はそのまま少々お待ちください"
             return text_timeout
 
 def google_spread(list):
